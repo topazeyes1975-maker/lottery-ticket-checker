@@ -4,7 +4,206 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lottery Ticket Checker</title>
-  <link rel="stylesheet" href="style.css">
+  
+  <!-- ALL CSS STYLES BUILT DIRECTLY IN -->
+  <style>
+    /* Dark Theme & Core Layout */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #0a0a0c;
+      background-image: radial-gradient(circle at center, #1a1a24 0%, #050508 100%);
+      color: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .checker-container {
+      background: #12131c;
+      max-width: 580px;
+      width: 100%;
+      padding: 28px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      text-align: center;
+      border: 1px solid #222436;
+    }
+
+    .checker-header h1 {
+      margin-bottom: 6px;
+      color: #ffffff;
+    }
+
+    .checker-header p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+
+    /* Red Warning Banner with Yellow Text */
+    .notice-banner {
+      background-color: #dc2626;
+      color: #fef08a;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      border: 2px solid #991b1b;
+    }
+
+    .notice-banner em {
+      text-decoration: underline;
+      font-style: normal;
+    }
+
+    /* Controls Group */
+    .controls-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    .input-field {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .input-field label {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .input-field select,
+    .input-field input {
+      padding: 10px 14px;
+      background-color: #1a1b26;
+      color: #ffffff;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .numbers-section h3 {
+      margin-bottom: 14px;
+      font-size: 1.05rem;
+      color: #e2e8f0;
+    }
+
+    /* Interactive 3D Ball Shapes */
+    .ball-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .lotto-ball {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset -4px -4px 10px rgba(0, 0, 0, 0.6), 0 6px 12px rgba(0, 0, 0, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      user-select: none;
+    }
+
+    .white-ball {
+      background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e2e8f0 60%, #94a3b8 100%);
+      color: #0f172a;
+    }
+
+    .special-ball {
+      background: radial-gradient(circle at 35% 35%, #f87171 0%, #dc2626 60%, #7f1d1d 100%);
+      color: #ffffff;
+      box-shadow: inset -4px -4px 10px rgba(0, 0, 0, 0.7), 0 6px 15px rgba(220, 38, 38, 0.4);
+    }
+
+    /* Tap Push Down Animation */
+    .lotto-ball:active {
+      transform: scale(0.9) translateY(4px);
+    }
+
+    /* Check Button */
+    .button-wrapper {
+      margin: 25px 0 15px;
+    }
+
+    #check-btn {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      padding: 14px 36px;
+      font-size: 1.15rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+    }
+
+    /* Results Formatting */
+    .results-container {
+      margin-top: 25px;
+      padding: 20px;
+      border-radius: 12px;
+      background-color: #181926;
+      border: 1px solid #2d3148;
+    }
+
+    .results-container.win {
+      border-color: #22c55e;
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.25);
+    }
+
+    .win-amount {
+      color: #4ade80;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    .results-container.loss {
+      border-color: #3b82f6;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .loss-message {
+      color: #60a5fa;
+      font-size: 1.25rem;
+      font-style: italic;
+      padding: 10px 0;
+    }
+
+    .hidden { display: none; }
+
+    .disclaimer {
+      margin-top: 30px;
+      border-top: 1px solid #1e2030;
+      padding-top: 15px;
+      color: #64748b;
+      font-size: 0.78rem;
+    }
+  </style>
 </head>
 <body>
 
@@ -13,13 +212,13 @@
       <h1>Lottery Number Checker</h1>
       <p>Tap the balls below to enter your numbers and check your ticket!</p>
       
-      <!-- Prominent Red Notice Banner with Yellow Text -->
+      <!-- Red Warning Notice -->
       <div class="notice-banner">
         <strong>Please Note:</strong> This site is for <em>checking ticket numbers only</em>. We do not sell lottery tickets or process wagers.
       </div>
     </header>
 
-    <!-- Game Selection & Draw Date -->
+    <!-- Controls -->
     <section class="controls-group">
       <div class="input-field">
         <label for="game-select">Game:</label>
@@ -35,7 +234,7 @@
       </div>
     </section>
 
-    <!-- Interactive Tappable White Balls -->
+    <!-- Tappable White Balls -->
     <section class="numbers-section">
       <h3>Tap 5 Main Numbers</h3>
       <div class="ball-container" id="white-balls-group">
@@ -47,7 +246,7 @@
       </div>
     </section>
 
-    <!-- Interactive Tappable Special Ball -->
+    <!-- Tappable Special Ball -->
     <section class="numbers-section">
       <h3 id="special-ball-label">Tap Powerball Number</h3>
       <div class="ball-container">
@@ -55,7 +254,7 @@
       </div>
     </section>
 
-    <!-- Send / Check Ticket Button -->
+    <!-- Action Button -->
     <div class="button-wrapper">
       <button id="check-btn">Check My Ticket</button>
     </div>
@@ -63,17 +262,118 @@
     <!-- Results Display Area -->
     <section id="results-display" class="results-container hidden">
       <h2 id="result-status-title">Results</h2>
-      <div id="results-content">
-        <!-- JS dynamically injects match details, glowing green wins, or gentle blue loss messages here -->
-      </div>
+      <div id="results-content"></div>
     </section>
 
-    <!-- Legal & Informational Disclaimer -->
+    <!-- Legal Disclaimer -->
     <footer class="disclaimer">
       <p><small><strong>Disclaimer:</strong> This web tool does not sell, generate, or register official lottery tickets. It is purely an informational ticket checker. Official winning payouts must be verified with authorized state lottery retailers.</small></p>
     </footer>
   </main>
 
-  <script src="script.js"></script>
+  <!-- ALL JAVASCRIPT LOGIC BUILT DIRECTLY IN -->
+  <script>
+    const ticketState = {
+      whiteBalls: [null, null, null, null, null],
+      specialBall: null
+    };
+
+    const encouragingLossSayings = [
+      "No luck on this pull, but the universe is saving up a big one for you!",
+      "Not a match today—time to recharge your luck energy for next drawing!",
+      "So close! Rome wasn't built in a day, and jackpots aren't won every night.",
+      "Lady Luck took a short coffee break, but she'll be back!",
+      "No winning match this time. Keep your chin up and keep smiling!",
+      "It's a skip for today, but every non-winner gets you closer to the grand prize!",
+      "The stars were almost aligned! Better fortune on the next draw."
+    ];
+
+    const whiteBallBtns = document.querySelectorAll('.white-ball');
+    const specialBallBtn = document.getElementById('special-ball-btn');
+    const checkBtn = document.getElementById('check-btn');
+    const resultsDisplay = document.getElementById('results-display');
+    const resultsContent = document.getElementById('results-content');
+    const gameSelect = document.getElementById('game-select');
+    const specialBallLabel = document.getElementById('special-ball-label');
+
+    gameSelect.addEventListener('change', (e) => {
+      if (e.target.value === 'powerball') {
+        specialBallLabel.textContent = 'Tap Powerball Number';
+        specialBallBtn.style.background = 'radial-gradient(circle at 35% 35%, #f87171 0%, #dc2626 60%, #7f1d1d 100%)';
+      } else {
+        specialBallLabel.textContent = 'Tap Mega Ball Number';
+        specialBallBtn.style.background = 'radial-gradient(circle at 35% 35%, #fbbf24 0%, #d97706 60%, #78350f 100%)';
+      }
+    });
+
+    whiteBallBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const index = btn.getAttribute('data-index');
+        const input = prompt(`Enter White Ball #${parseInt(index) + 1} (1-69):`, ticketState.whiteBalls[index] || '');
+        if (input !== null) {
+          const num = parseInt(input.trim());
+          if (!isNaN(num) && num >= 1 && num <= 69) {
+            ticketState.whiteBalls[index] = num;
+            btn.textContent = num;
+          } else {
+            alert('Please enter a valid number between 1 and 69.');
+          }
+        }
+      });
+    });
+
+    specialBallBtn.addEventListener('click', () => {
+      const isPowerball = gameSelect.value === 'powerball';
+      const maxVal = isPowerball ? 26 : 25;
+      const label = isPowerball ? 'Powerball' : 'Mega Ball';
+      
+      const input = prompt(`Enter your ${label} (1-${maxVal}):`, ticketState.specialBall || '');
+      if (input !== null) {
+        const num = parseInt(input.trim());
+        if (!isNaN(num) && num >= 1 && num <= maxVal) {
+          ticketState.specialBall = num;
+          specialBallBtn.textContent = num;
+        } else {
+          alert(`Please enter a valid ${label} number between 1 and ${maxVal}.`);
+        }
+      }
+    });
+
+    checkBtn.addEventListener('click', () => {
+      if (ticketState.whiteBalls.includes(null) || ticketState.specialBall === null) {
+        alert('Please tap all 6 balls to enter your complete ticket numbers first!');
+        return;
+      }
+
+      // Demo winning numbers (Replace with API fetch later)
+      const winningDraw = { whiteBalls: [7, 15, 23, 42, 58], specialBall: 12 };
+
+      const matchedWhites = ticketState.whiteBalls.filter(num => winningDraw.whiteBalls.includes(num));
+      const matchedSpecial = ticketState.specialBall === winningDraw.specialBall;
+
+      resultsDisplay.classList.remove('hidden', 'win', 'loss');
+
+      if (matchedWhites.length > 0 || matchedSpecial) {
+        resultsDisplay.classList.add('win');
+        let prizeText = '$7.00';
+        if (matchedWhites.length === 5 && matchedSpecial) prizeText = 'JACKPOT! $100,000,000+';
+        else if (matchedWhites.length === 5) prizeText = '$1,000,000.00';
+        else if (matchedWhites.length === 4 && matchedSpecial) prizeText = '$50,000.00';
+
+        resultsContent.innerHTML = `
+          <p style="color: #cbd5e1; margin-bottom: 10px;">Matched ${matchedWhites.length} White Ball(s) ${matchedSpecial ? '+ Special Ball!' : ''}</p>
+          <div class="win-amount">Prize Won: ${prizeText}</div>
+        `;
+      } else {
+        resultsDisplay.classList.add('loss');
+        const randomSaying = encouragingLossSayings[Math.floor(Math.random() * encouragingLossSayings.length)];
+        resultsContent.innerHTML = `
+          <div class="loss-message">"${randomSaying}"</div>
+          <p style="color: #64748b; font-size: 0.9rem; margin-top: 8px;">0 matches on this draw.</p>
+        `;
+      }
+    });
+  </script>
 </body>
 </html>
+
