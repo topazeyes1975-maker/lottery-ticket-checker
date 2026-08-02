@@ -410,7 +410,7 @@
       }
     });
 
-    // API Fetcher
+    // API Fetcher with separate Mega Ball property support
     async function fetchLiveWinningNumbers(game) {
       let endpoint = game === 'powerball'
         ? 'https://data.ny.gov/resource/d6yy-54nr.json?$limit=1&$order=draw_date%20DESC'
@@ -420,11 +420,21 @@
         const response = await fetch(endpoint);
         const data = await response.json();
         if (data && data.length > 0) {
-          const rawNumbers = data[0].winning_numbers.split(' ').map(Number);
+          const row = data[0];
+          const rawNumbers = row.winning_numbers.split(' ').map(Number);
+          
+          let parsedSpecialBall;
+          if (game === 'powerball') {
+            parsedSpecialBall = rawNumbers[5];
+          } else {
+            // Mega Millions stores mega_ball as a separate property or fallback to rawNumbers[5]
+            parsedSpecialBall = row.mega_ball ? parseInt(row.mega_ball) : rawNumbers[5];
+          }
+
           return {
             whiteBalls: rawNumbers.slice(0, 5),
-            specialBall: rawNumbers[5],
-            drawDate: data[0].draw_date ? data[0].draw_date.split('T')[0] : ''
+            specialBall: parsedSpecialBall,
+            drawDate: row.draw_date ? row.draw_date.split('T')[0] : ''
           };
         }
       } catch (err) {
