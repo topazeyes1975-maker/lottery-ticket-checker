@@ -47,7 +47,7 @@
       margin-bottom: 16px;
     }
 
-    /* Red Warning Banner with Yellow Text */
+    /* Red Warning Banner */
     .notice-banner {
       background-color: #dc2626;
       color: #fef08a;
@@ -178,11 +178,24 @@
       color: #4ade80;
       font-size: 1.8rem;
       font-weight: bold;
+      margin: 10px 0;
     }
 
     .results-container.loss {
       border-color: #3b82f6;
       box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .results-container.pending {
+      border-color: #f59e0b;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+    }
+
+    .pending-message {
+      color: #fbbf24;
+      font-size: 1.1rem;
+      font-weight: bold;
+      padding: 8px 0;
     }
 
     .loss-message {
@@ -192,10 +205,26 @@
       padding: 10px 0;
     }
 
-    .drawn-numbers-text {
+    .drawn-numbers-box {
+      margin-top: 15px;
+      padding: 12px;
+      background-color: #11121a;
+      border-radius: 8px;
+      border: 1px dashed #334155;
+    }
+
+    .drawn-numbers-title {
       color: #94a3b8;
-      font-size: 0.85rem;
-      margin-top: 10px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .drawn-numbers-val {
+      color: #f8fafc;
+      font-size: 1.05rem;
+      font-weight: bold;
     }
 
     .hidden { display: none; }
@@ -216,13 +245,11 @@
       <h1>Lottery Number Checker</h1>
       <p>Tap the balls below to enter your numbers and check your ticket!</p>
       
-      <!-- Red Warning Notice -->
       <div class="notice-banner">
         <strong>Please Note:</strong> This site is for <em>checking ticket numbers only</em>. We do not sell lottery tickets or process wagers.
       </div>
     </header>
 
-    <!-- Controls -->
     <section class="controls-group">
       <div class="input-field">
         <label for="game-select">Game:</label>
@@ -238,7 +265,6 @@
       </div>
     </section>
 
-    <!-- Tappable White Balls -->
     <section class="numbers-section">
       <h3>Tap 5 Main Numbers</h3>
       <div class="ball-container" id="white-balls-group">
@@ -250,7 +276,6 @@
       </div>
     </section>
 
-    <!-- Tappable Special Ball -->
     <section class="numbers-section">
       <h3 id="special-ball-label">Tap Powerball Number</h3>
       <div class="ball-container">
@@ -258,24 +283,20 @@
       </div>
     </section>
 
-    <!-- Action Button -->
     <div class="button-wrapper">
       <button id="check-btn">Check My Ticket</button>
     </div>
 
-    <!-- Results Display Area -->
     <section id="results-display" class="results-container hidden">
       <h2 id="result-status-title">Results</h2>
       <div id="results-content"></div>
     </section>
 
-    <!-- Legal Disclaimer -->
     <footer class="disclaimer">
       <p><small><strong>Disclaimer:</strong> This web tool does not sell, generate, or register official lottery tickets. It is purely an informational ticket checker. Official winning payouts must be verified with authorized state lottery retailers.</small></p>
     </footer>
   </main>
 
-  <!-- JAVASCRIPT WITH LIVE LOTTERY API FETCH -->
   <script>
     const ticketState = {
       whiteBalls: [null, null, null, null, null],
@@ -299,8 +320,12 @@
     const resultsContent = document.getElementById('results-content');
     const gameSelect = document.getElementById('game-select');
     const specialBallLabel = document.getElementById('special-ball-label');
+    const dateInput = document.getElementById('draw-date');
 
-    // Handle Game Switch
+    // Default date input to today
+    const todayStr = new Date().toISOString().split('T')[0];
+    dateInput.value = todayStr;
+
     gameSelect.addEventListener('change', (e) => {
       if (e.target.value === 'powerball') {
         specialBallLabel.textContent = 'Tap Powerball Number';
@@ -311,7 +336,6 @@
       }
     });
 
-    // White Ball Tapping
     whiteBallBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
         const index = btn.getAttribute('data-index');
@@ -328,7 +352,6 @@
       });
     });
 
-    // Special Ball Tapping
     specialBallBtn.addEventListener('click', () => {
       const isPowerball = gameSelect.value === 'powerball';
       const maxVal = isPowerball ? 26 : 25;
@@ -346,7 +369,7 @@
       }
     });
 
-    // Function to fetch official winning draw numbers from State Open Data API
+    // API fetcher
     async function fetchLiveWinningNumbers(game) {
       let endpoint = '';
       if (game === 'powerball') {
@@ -363,23 +386,37 @@
           return {
             whiteBalls: rawNumbers.slice(0, 5),
             specialBall: rawNumbers[5],
-            drawDate: data[0].draw_date ? data[0].draw_date.split('T')[0] : 'Latest'
+            drawDate: data[0].draw_date ? data[0].draw_date.split('T')[0] : ''
           };
         }
       } catch (err) {
         console.error('API Fetch Error:', err);
-        return null;
       }
+      return null;
     }
 
-    // Main Check Ticket Handler
     checkBtn.addEventListener('click', async () => {
       if (ticketState.whiteBalls.includes(null) || ticketState.specialBall === null) {
         alert('Please tap all 6 balls to enter your complete ticket numbers first!');
         return;
       }
 
-      // UI Loading Feedback
+      const selectedDate = dateInput.value;
+      const currentHour = new Date().getHours(); // 24-hr format
+
+      // If user selected today and it is currently before 11 PM (23:00), warn that numbers are pending
+      if (selectedDate === todayStr && currentHour < 23) {
+        resultsDisplay.classList.remove('hidden', 'win', 'loss');
+        resultsDisplay.classList.add('pending');
+        resultsContent.innerHTML = `
+          <div class="pending-message">Drawing Results Pending!</div>
+          <p style="color: #cbd5e1; font-size: 0.9rem; margin-top: 6px;">
+            Official winning numbers for tonight are not posted yet. Drawings occur late in the evening and official results update around <strong>11:00 PM CDT</strong>. Please check back then!
+          </p>
+        `;
+        return;
+      }
+
       checkBtn.textContent = 'Checking Live Results...';
       checkBtn.disabled = true;
 
@@ -390,15 +427,21 @@
       checkBtn.disabled = false;
 
       if (!liveDraw) {
-        alert('Unable to retrieve official lottery results at this moment. Please try again in a few seconds.');
+        alert('Unable to retrieve official lottery results at this moment. Please try again shortly.');
         return;
       }
 
-      // Compare ticket against fetched official winning numbers
       const matchedWhites = ticketState.whiteBalls.filter(num => liveDraw.whiteBalls.includes(num));
       const matchedSpecial = ticketState.specialBall === liveDraw.specialBall;
 
-      resultsDisplay.classList.remove('hidden', 'win', 'loss');
+      resultsDisplay.classList.remove('hidden', 'win', 'loss', 'pending');
+
+      const drawnBoxHtml = `
+        <div class="drawn-numbers-box">
+          <div class="drawn-numbers-title">Official Drawn Numbers (${liveDraw.drawDate})</div>
+          <div class="drawn-numbers-val">White: ${liveDraw.whiteBalls.join(', ')} &nbsp;|&nbsp; ${game === 'powerball' ? 'PB' : 'MB'}: ${liveDraw.specialBall}</div>
+        </div>
+      `;
 
       if (matchedWhites.length > 0 || matchedSpecial) {
         resultsDisplay.classList.add('win');
@@ -408,21 +451,20 @@
         else if (matchedWhites.length === 4 && matchedSpecial) prizeText = '$50,000.00';
 
         resultsContent.innerHTML = `
-          <p style="color: #cbd5e1; margin-bottom: 10px;">Matched ${matchedWhites.length} White Ball(s) ${matchedSpecial ? '+ Special Ball!' : ''}</p>
+          <p style="color: #cbd5e1;">Matched ${matchedWhites.length} White Ball(s) ${matchedSpecial ? '+ Special Ball!' : ''}</p>
           <div class="win-amount">Prize Won: ${prizeText}</div>
-          <div class="drawn-numbers-text">Official Drawn Numbers (${liveDraw.drawDate}): ${liveDraw.whiteBalls.join(', ')} PB: ${liveDraw.specialBall}</div>
+          ${drawnBoxHtml}
         `;
       } else {
         resultsDisplay.classList.add('loss');
         const randomSaying = encouragingLossSayings[Math.floor(Math.random() * encouragingLossSayings.length)];
         resultsContent.innerHTML = `
           <div class="loss-message">"${randomSaying}"</div>
-          <p style="color: #64748b; font-size: 0.9rem; margin-top: 8px;">0 matches on this draw.</p>
-          <div class="drawn-numbers-text">Official Drawn Numbers (${liveDraw.drawDate}): ${liveDraw.whiteBalls.join(', ')} PB: ${liveDraw.specialBall}</div>
+          <p style="color: #64748b; font-size: 0.9rem; margin-top: 4px;">0 matches on this draw.</p>
+          ${drawnBoxHtml}
         `;
       }
     });
   </script>
 </body>
 </html>
-
