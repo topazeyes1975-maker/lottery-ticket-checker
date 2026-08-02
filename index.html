@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lottery Ticket Checker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="checker-container">
+    <header class="checker-header">
+      <h1>Lottery Number Checker</h1>
+      <p>Tap the balls below to enter your numbers and check your ticket!</p>
+      
+      <!-- Prominent Red Notice Banner with Yellow Text -->
+      <div class="notice-banner">
+        <strong>Please Note:</strong> This site is for <em>checking ticket numbers only</em>. We do not sell lottery tickets or process wagers.
+      </div>
+    </header>
+
+    <!-- Game Selection & Draw Date -->
+    <section class="controls-group">
+      <div class="input-field">
+        <label for="game-select">Game:</label>
+        <select id="game-select">
+          <option value="powerball">Powerball</option>
+          <option value="megamillions">Mega Millions</option>
+        </select>
+      </div>
+
+      <div class="input-field">
+        <label for="draw-date">Draw Date:</label>
+        <input type="date" id="draw-date">
+      </div>
+    </section>
+
+    <!-- Interactive Tappable White Balls -->
+    <section class="numbers-section">
+      <h3>Tap 5 Main Numbers</h3>
+      <div class="ball-container" id="white-balls-group">
+        <button class="lotto-ball white-ball" data-index="0">?</button>
+        <button class="lotto-ball white-ball" data-index="1">?</button>
+        <button class="lotto-ball white-ball" data-index="2">?</button>
+        <button class="lotto-ball white-ball" data-index="3">?</button>
+        <button class="lotto-ball white-ball" data-index="4">?</button>
+      </div>
+    </section>
+
+    <!-- Interactive Tappable Special Ball -->
+    <section class="numbers-section">
+      <h3 id="special-ball-label">Tap Powerball Number</h3>
+      <div class="ball-container">
+        <button class="lotto-ball special-ball" id="special-ball-btn">?</button>
+      </div>
+    </section>
+
+    <!-- Send / Check Ticket Button -->
+    <div class="button-wrapper">
+      <button id="check-btn">Check My Ticket</button>
+    </div>
+
+    <!-- Results Display Area -->
+    <section id="results-display" class="results-container hidden">
+      <h2 id="result-status-title">Results</h2>
+      <div id="results-content">
+        <!-- JS dynamically injects match details, glowing green wins, or gentle blue loss messages here -->
+      </div>
+    </section>
+
+    <!-- Legal & Informational Disclaimer -->
+    <footer class="disclaimer">
+      <p><small><strong>Disclaimer:</strong> This web tool does not sell, generate, or register official lottery tickets. It is purely an informational ticket checker. Official winning payouts must be verified with authorized state lottery retailers.</small></p>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
