@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lottery Ticket Checker</title>
   
-  <!-- ALL CSS STYLES BUILT DIRECTLY IN -->
   <style>
     /* Dark Theme & Core Layout */
     * {
@@ -140,7 +139,6 @@
       box-shadow: inset -4px -4px 10px rgba(0, 0, 0, 0.7), 0 6px 15px rgba(220, 38, 38, 0.4);
     }
 
-    /* Tap Push Down Animation */
     .lotto-ball:active {
       transform: scale(0.9) translateY(4px);
     }
@@ -192,6 +190,12 @@
       font-size: 1.25rem;
       font-style: italic;
       padding: 10px 0;
+    }
+
+    .drawn-numbers-text {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      margin-top: 10px;
     }
 
     .hidden { display: none; }
@@ -271,7 +275,7 @@
     </footer>
   </main>
 
-  <!-- ALL JAVASCRIPT LOGIC BUILT DIRECTLY IN -->
+  <!-- JAVASCRIPT WITH LIVE LOTTERY API FETCH -->
   <script>
     const ticketState = {
       whiteBalls: [null, null, null, null, null],
@@ -296,6 +300,7 @@
     const gameSelect = document.getElementById('game-select');
     const specialBallLabel = document.getElementById('special-ball-label');
 
+    // Handle Game Switch
     gameSelect.addEventListener('change', (e) => {
       if (e.target.value === 'powerball') {
         specialBallLabel.textContent = 'Tap Powerball Number';
@@ -306,6 +311,7 @@
       }
     });
 
+    // White Ball Tapping
     whiteBallBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
         const index = btn.getAttribute('data-index');
@@ -322,6 +328,7 @@
       });
     });
 
+    // Special Ball Tapping
     specialBallBtn.addEventListener('click', () => {
       const isPowerball = gameSelect.value === 'powerball';
       const maxVal = isPowerball ? 26 : 25;
@@ -339,17 +346,57 @@
       }
     });
 
-    checkBtn.addEventListener('click', () => {
+    // Function to fetch official winning draw numbers from State Open Data API
+    async function fetchLiveWinningNumbers(game) {
+      let endpoint = '';
+      if (game === 'powerball') {
+        endpoint = 'https://data.ny.gov/resource/d6yy-54nr.json?$limit=1&$order=draw_date%20DESC';
+      } else {
+        endpoint = 'https://data.ny.gov/resource/5xaw-6ayf.json?$limit=1&$order=draw_date%20DESC';
+      }
+
+      try {
+        const response = await fetch(endpoint);
+        const data = await response.json();
+        if (data && data.length > 0) {
+          const rawNumbers = data[0].winning_numbers.split(' ').map(Number);
+          return {
+            whiteBalls: rawNumbers.slice(0, 5),
+            specialBall: rawNumbers[5],
+            drawDate: data[0].draw_date ? data[0].draw_date.split('T')[0] : 'Latest'
+          };
+        }
+      } catch (err) {
+        console.error('API Fetch Error:', err);
+        return null;
+      }
+    }
+
+    // Main Check Ticket Handler
+    checkBtn.addEventListener('click', async () => {
       if (ticketState.whiteBalls.includes(null) || ticketState.specialBall === null) {
         alert('Please tap all 6 balls to enter your complete ticket numbers first!');
         return;
       }
 
-      // Demo winning numbers (Replace with API fetch later)
-      const winningDraw = { whiteBalls: [7, 15, 23, 42, 58], specialBall: 12 };
+      // UI Loading Feedback
+      checkBtn.textContent = 'Checking Live Results...';
+      checkBtn.disabled = true;
 
-      const matchedWhites = ticketState.whiteBalls.filter(num => winningDraw.whiteBalls.includes(num));
-      const matchedSpecial = ticketState.specialBall === winningDraw.specialBall;
+      const game = gameSelect.value;
+      const liveDraw = await fetchLiveWinningNumbers(game);
+
+      checkBtn.textContent = 'Check My Ticket';
+      checkBtn.disabled = false;
+
+      if (!liveDraw) {
+        alert('Unable to retrieve official lottery results at this moment. Please try again in a few seconds.');
+        return;
+      }
+
+      // Compare ticket against fetched official winning numbers
+      const matchedWhites = ticketState.whiteBalls.filter(num => liveDraw.whiteBalls.includes(num));
+      const matchedSpecial = ticketState.specialBall === liveDraw.specialBall;
 
       resultsDisplay.classList.remove('hidden', 'win', 'loss');
 
@@ -363,6 +410,7 @@
         resultsContent.innerHTML = `
           <p style="color: #cbd5e1; margin-bottom: 10px;">Matched ${matchedWhites.length} White Ball(s) ${matchedSpecial ? '+ Special Ball!' : ''}</p>
           <div class="win-amount">Prize Won: ${prizeText}</div>
+          <div class="drawn-numbers-text">Official Drawn Numbers (${liveDraw.drawDate}): ${liveDraw.whiteBalls.join(', ')} PB: ${liveDraw.specialBall}</div>
         `;
       } else {
         resultsDisplay.classList.add('loss');
@@ -370,6 +418,7 @@
         resultsContent.innerHTML = `
           <div class="loss-message">"${randomSaying}"</div>
           <p style="color: #64748b; font-size: 0.9rem; margin-top: 8px;">0 matches on this draw.</p>
+          <div class="drawn-numbers-text">Official Drawn Numbers (${liveDraw.drawDate}): ${liveDraw.whiteBalls.join(', ')} PB: ${liveDraw.specialBall}</div>
         `;
       }
     });
