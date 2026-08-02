@@ -124,7 +124,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: inset -4px -4px 10px rgba(0, 0, 0, 0.6), 0 6px 12px rgba(0, 0, 0, 0.4);
-      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
       user-select: none;
     }
 
@@ -140,7 +140,7 @@
     }
 
     .lotto-ball:active {
-      transform: scale(0.92) translateY(2px);
+      transform: scale(0.9) translateY(4px);
     }
 
     /* Action Buttons Area */
@@ -262,7 +262,7 @@
   <main class="checker-container">
     <header class="checker-header">
       <h1>Lottery Number Checker</h1>
-      <p>Tap the balls to pick your numbers and check your ticket!</p>
+      <p>Tap the balls below to enter your numbers and check your ticket!</p>
       
       <div class="notice-banner">
         <strong>Please Note:</strong> This site is for <em>checking ticket numbers only</em>. We do not sell lottery tickets or process wagers.
@@ -285,20 +285,20 @@
     </section>
 
     <section class="numbers-section">
-      <h3 id="white-ball-label">Tap Main Numbers (1-69)</h3>
+      <h3 id="white-ball-label">Tap 5 Main Numbers</h3>
       <div class="ball-container" id="white-balls-group">
-        <button class="lotto-ball white-ball" data-index="0">0</button>
-        <button class="lotto-ball white-ball" data-index="1">0</button>
-        <button class="lotto-ball white-ball" data-index="2">0</button>
-        <button class="lotto-ball white-ball" data-index="3">0</button>
-        <button class="lotto-ball white-ball" data-index="4">0</button>
+        <button class="lotto-ball white-ball" data-index="0">?</button>
+        <button class="lotto-ball white-ball" data-index="1">?</button>
+        <button class="lotto-ball white-ball" data-index="2">?</button>
+        <button class="lotto-ball white-ball" data-index="3">?</button>
+        <button class="lotto-ball white-ball" data-index="4">?</button>
       </div>
     </section>
 
     <section class="numbers-section">
-      <h3 id="special-ball-label">Tap Powerball Number (1-26)</h3>
+      <h3 id="special-ball-label">Tap Powerball Number</h3>
       <div class="ball-container">
-        <button class="lotto-ball special-ball" id="special-ball-btn">0</button>
+        <button class="lotto-ball special-ball" id="special-ball-btn">?</button>
       </div>
     </section>
 
@@ -318,10 +318,9 @@
   </main>
 
   <script>
-    // State holding selected numbers (defaulting to 0)
     const ticketState = {
-      whiteBalls: [0, 0, 0, 0, 0],
-      specialBall: 0
+      whiteBalls: [null, null, null, null, null],
+      specialBall: null
     };
 
     const encouragingLossSayings = [
@@ -341,7 +340,6 @@
     const resultsDisplay = document.getElementById('results-display');
     const resultsContent = document.getElementById('results-content');
     const gameSelect = document.getElementById('game-select');
-    const whiteBallLabel = document.getElementById('white-ball-label');
     const specialBallLabel = document.getElementById('special-ball-label');
     const dateInput = document.getElementById('draw-date');
 
@@ -352,62 +350,67 @@
     // Handle Game Switch
     gameSelect.addEventListener('change', (e) => {
       const isPowerball = e.target.value === 'powerball';
-      whiteBallLabel.textContent = isPowerball ? 'Tap Main Numbers (1-69)' : 'Tap Main Numbers (1-70)';
-      specialBallLabel.textContent = isPowerball ? 'Tap Powerball Number (1-26)' : 'Tap Mega Ball Number (1-25)';
-      
+      specialBallLabel.textContent = isPowerball ? 'Tap Powerball Number' : 'Tap Mega Ball Number';
       specialBallBtn.style.background = isPowerball 
         ? 'radial-gradient(circle at 35% 35%, #f87171 0%, #dc2626 60%, #7f1d1d 100%)'
         : 'radial-gradient(circle at 35% 35%, #fbbf24 0%, #d97706 60%, #78350f 100%)';
       
-      // Reset numbers on game switch to prevent invalid numbers
       resetAllBalls();
     });
 
-    // Helper to Reset All Balls to 0
+    // Reset All Balls Helper
     function resetAllBalls() {
-      ticketState.whiteBalls = [0, 0, 0, 0, 0];
-      ticketState.specialBall = 0;
+      ticketState.whiteBalls = [null, null, null, null, null];
+      ticketState.specialBall = null;
 
       whiteBallBtns.forEach((btn) => {
-        btn.textContent = '0';
+        btn.textContent = '?';
       });
-      specialBallBtn.textContent = '0';
+      specialBallBtn.textContent = '?';
 
       resultsDisplay.classList.add('hidden');
     }
 
-    // Reset Button Event Handler
-    resetBtn.addEventListener('click', () => {
-      resetAllBalls();
-    });
+    resetBtn.addEventListener('click', resetAllBalls);
 
-    // Tap White Ball to Increment Number
+    // Tap White Ball -> Standard Prompt Window
     whiteBallBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
         const index = parseInt(btn.getAttribute('data-index'));
         const maxVal = gameSelect.value === 'powerball' ? 69 : 70;
         
-        let currentNum = ticketState.whiteBalls[index];
-        currentNum = currentNum >= maxVal ? 1 : currentNum + 1;
-        
-        ticketState.whiteBalls[index] = currentNum;
-        btn.textContent = currentNum;
+        const input = prompt(`Enter White Ball #${index + 1} (1-${maxVal}):`, ticketState.whiteBalls[index] || '');
+        if (input !== null) {
+          const num = parseInt(input.trim());
+          if (!isNaN(num) && num >= 1 && num <= maxVal) {
+            ticketState.whiteBalls[index] = num;
+            btn.textContent = num;
+          } else {
+            alert(`Please enter a valid number between 1 and ${maxVal}.`);
+          }
+        }
       });
     });
 
-    // Tap Special Ball to Increment Number
+    // Tap Special Ball -> Standard Prompt Window
     specialBallBtn.addEventListener('click', () => {
       const isPowerball = gameSelect.value === 'powerball';
       const maxVal = isPowerball ? 26 : 25;
+      const label = isPowerball ? 'Powerball' : 'Mega Ball';
       
-      let currentNum = ticketState.specialBall;
-      currentNum = currentNum >= maxVal ? 1 : currentNum + 1;
-      
-      ticketState.specialBall = currentNum;
-      specialBallBtn.textContent = currentNum;
+      const input = prompt(`Enter your ${label} (1-${maxVal}):`, ticketState.specialBall || '');
+      if (input !== null) {
+        const num = parseInt(input.trim());
+        if (!isNaN(num) && num >= 1 && num <= maxVal) {
+          ticketState.specialBall = num;
+          specialBallBtn.textContent = num;
+        } else {
+          alert(`Please enter a valid ${label} number between 1 and ${maxVal}.`);
+        }
+      }
     });
 
-    // API fetcher
+    // API Fetcher
     async function fetchLiveWinningNumbers(game) {
       let endpoint = game === 'powerball'
         ? 'https://data.ny.gov/resource/d6yy-54nr.json?$limit=1&$order=draw_date%20DESC'
@@ -430,11 +433,10 @@
       return null;
     }
 
-    // Check Ticket Click Handler
+    // Check Ticket Handler
     checkBtn.addEventListener('click', async () => {
-      // Ensure user hasn't left any balls as 0
-      if (ticketState.whiteBalls.includes(0) || ticketState.specialBall === 0) {
-        alert('Please tap the balls to select valid numbers for all 6 slots before checking!');
+      if (ticketState.whiteBalls.includes(null) || ticketState.specialBall === null) {
+        alert('Please tap all 6 balls to enter your complete ticket numbers first!');
         return;
       }
 
